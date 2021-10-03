@@ -17,3 +17,6 @@ services:
     env_file: .env
     volumes:
       - ./initdb:/docker-entrypoint-initdb.d
+      - logger-volume:/var/lib/postgresql/data
+volumes:
+  logger-volume:

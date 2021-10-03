@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 	"github.com/rew150/logger/internal/router"
 )
 
@@ -16,13 +17,19 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	g := gin.Default()
+	api := gin.Default()
 
-	router.Route(g)
+	router.Route(api)
+
+	r := mux.NewRouter()
+	r.PathPrefix("/api").Handler(api)
+	r.PathPrefix("/").Handler(
+		http.FileServer(http.Dir("./public")),
+	)
 
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: g,
+		Handler: r,
 	}
 
 	go func() {

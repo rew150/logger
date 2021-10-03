@@ -6,5 +6,6 @@ import (
 )
 
 func Route(g *gin.Engine) {
-	g.GET("/", handler.HelloHandler)
+	api := g.Group("/api")
+	api.GET("/", handler.HelloHandler)
 }

@@ -1,10 +1,11 @@
 package handler
 
 import (
+	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/rew150/logger/internal/logger"
 )
 
@@ -18,25 +19,22 @@ func GetLogsHandler(ctx *gin.Context) {
 }
 
 func AppendLogHandler(ctx *gin.Context) {
-	var body logger.Log
-	if err := ctx.ShouldBindBodyWith(&body, binding.JSON); err != nil {
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	if err != nil {
 		ctx.String(
 			http.StatusBadRequest,
-			"error formatting body: %s",
+			"bad request: %s",
 			err,
 		)
 		return
 	}
 
-	if body.Timestamp == "" {
-		ctx.String(
-			http.StatusUnprocessableEntity,
-			"timestamp is required",
-		)
-		return
+	log := logger.Log{
+		Timestamp: time.Now(),
+		Message:   string(body),
 	}
 
-	if err := logger.Service.Append(ctx.Request.Context(), body); err != nil {
+	if err := logger.Service.Append(ctx.Request.Context(), log); err != nil {
 		ctx.String(http.StatusInternalServerError, "db error: %s", err)
 		return
 	}

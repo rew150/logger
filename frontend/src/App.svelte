@@ -1,30 +1,61 @@
 <script lang="ts">
-	export let name: string;
-</script>
+	import { onMount } from 'svelte';
+	import ky from 'ky';
+	import type { Log } from './log';
 
-<main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
-</main>
+	let logs: Log[] = [];
+	let message: string = '';
 
-<style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
-
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
+	const fetchLogs = async () => {
+		try {
+			const res = await ky.get('/api/log')
+			if (res.status < 200 || res.status >= 300) {
+				throw 'status: ' + res.statusText
+			}
+			logs = await res.json()
+		} catch (error) {
+			alert('error fetching: '+error)
 		}
 	}
-</style>
+
+	const postLogs = async () => {
+		try {
+			const res = await ky.post('/api/log', {body: message})
+			if (res.status !== 201) {
+				throw 'status: ' + res.statusText
+			}
+			fetchLogs()
+			alert('created')
+		} catch (error) {
+			alert('error posting: '+error)
+		}
+	}
+
+	onMount(fetchLogs);
+</script>
+
+<h1>
+	Logs
+</h1>
+
+<button on:click={fetchLogs}>Fetch Logs</button>
+
+<table>
+	<tr>
+		<th>Timestamp</th>
+		<th>Message</th>
+	</tr>
+	{#each logs as {timestamp, message}}
+		<tr>
+			<td>{timestamp}</td>
+			<td>{message}</td>
+		</tr>
+	{/each}
+</table>
+
+<h2>Create new log</h2>
+
+<label for="loginput">Message: </label>
+<input id="loginput" bind:value={message} />
+<br />
+<button on:click={postLogs}>Post Log</button>

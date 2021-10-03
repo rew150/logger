@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  app:
+    container_name: logger-app
+    image: logger
+    build: .
+    ports:
+      - 8080:8080
+    env_file: .env
+    command: make start-prod
+    depends_on:
+      - db
+    restart: on-failure
+  db:
+    container_name: logger-db
+    image: postgres:14.0-alpine
+    env_file: .env
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d

@@ -43,7 +43,7 @@ func main() {
 	stop()
 	log.Println("Shutting down gracefully, press Ctrl+C again to force")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatalf("Server forced to shutdown: %s \n", err)

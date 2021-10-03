@@ -8,4 +8,8 @@ import (
 func Route(g *gin.Engine) {
 	api := g.Group("/api")
 	api.GET("/", handler.HelloHandler)
+
+	log := api.Group("/log")
+	log.GET("/", handler.GetLogsHandler)
+	log.POST("/", handler.AppendLogHandler)
 }

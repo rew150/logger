@@ -24,7 +24,7 @@ func main() {
 	r := mux.NewRouter()
 	r.PathPrefix("/api").Handler(api)
 	r.PathPrefix("/").Handler(
-		http.FileServer(http.Dir("./public")),
+		http.FileServer(http.Dir("./frontend/public")),
 	)
 
 	srv := &http.Server{
